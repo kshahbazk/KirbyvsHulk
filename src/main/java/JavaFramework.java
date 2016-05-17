@@ -616,7 +616,7 @@ Does not allow the camera to leave the world
         	System.out.println(bucketsOnScreen[0]);
         	System.out.println(bucketsOnScreen[1]);
         	int originalYstart = bucketsOnScreen[1];
-			Arraylist<LaserEnemy> laserEnemiesOnScreen = new Arraylist<LaserEnemy>();
+			ArrayList<LaserEnemy> laserEnemiesOnScreen = new ArrayList<LaserEnemy>();
 
         	while(bucketsOnScreen[0] < bucketsOnScreen[2])
         	{
@@ -686,7 +686,7 @@ Does not allow the camera to leave the world
             			projectilesFired++;
 					else if(current1 instanceof LaserEnemy)
 					{
-						laserEnemiesOnScreen.add(current1);
+						laserEnemiesOnScreen.add((LaserEnemy)current1);
 					}
             		current1.updateX();
         			ArrayList<Rectangle> a2 = current1.possibleAABBTiles(b, l);
