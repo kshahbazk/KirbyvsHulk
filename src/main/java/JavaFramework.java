@@ -180,7 +180,7 @@ class Sprite implements Comparable<Sprite>{
 	boolean grounded = false;
 	double gravity = 0.4;
 	double maxvel = 20;//not used yet
-	double maxFallSpeed = 20;
+	double maxFallSpeed = 10;
 	public boolean deleteMe;
 	public double[] loc = new double[2];
 	public double[] prevloc = new double[2];
@@ -343,7 +343,7 @@ class Projectile extends Sprite{
 	public void actForTimePassed(int ns, LinkedList<AITask> aiStack)
 	{
 		curtime += ns;
-		if(curtime - prevcurtime > 10000)
+		if(curtime - prevcurtime > 6000)
 		{
 			deleteMe = true;
 		}
@@ -370,6 +370,7 @@ class Projectile extends Sprite{
 		}
 	}
 }
+
 class Enemy extends Sprite{
 	int prevcurtime = 0;
 	int curtime = 0;
@@ -399,6 +400,46 @@ class Enemy extends Sprite{
 		{
 			deleteMe = true;
 		}
+	}
+}
+
+class LaserEnemy extends Enemy
+{
+	boolean facingRight;
+}
+
+class Portal extends Sprite
+{
+	private double teleportXTile;
+	private double teleportYTile;//Easier to think about this way.
+	public Portal(int tileX, int tileY)//tileX will be green value, tileY will be red.
+	{
+		this.teleportXTile = tileX * JavaFramework.b.tilex  + JavaFramework.b.tilex * .5;//magic numbers, but can't give
+		this.teleportYTile = tileY * JavaFramework.b.tilex + JavaFramework.b.tilex;
+
+	}
+
+	public void onOverlapX(int[] overlapArr, Sprite s2)
+	{
+		super.onOverlapX(overlapArr, s2);
+		if(s2 instanceof Protagonist && (overlapArr[0] != 0))//WARP!!!
+		{
+			overlapCall();
+
+		}
+	}
+	public void onOverlapY(int[] overlapArr, Sprite s2)
+	{
+		super.onOverlapY(overlapArr, s2);
+		if(s2 instanceof Projectile && (overlapArr[0] != 0))
+		{
+			overlapCall();
+		}
+	}
+	public void overlapCall()
+	{
+		JavaFramework.setProtPos(new double[]{teleportXTile, teleportYTile});
+		JavaFramework.fixCamera();
 	}
 }
 interface AITask{
@@ -442,6 +483,7 @@ public class JavaFramework {
     // Size of the sprite.
     private static int[] enemySpriteSize = new int[2];
     private static double[] delta = new double[]{2,8};
+	private static LevelLayout l = new LevelLayout();//set here to avoid window loading before ready
     static GL2 gl;
 /*
  * GOALS:
@@ -453,6 +495,12 @@ public class JavaFramework {
 Uses the arrow keys to move the image around the window and has a way to control the camera as well.
 Does not allow the camera to leave the world
  */
+	static BucketHolder buckets;
+	static Protagonist p;
+	static Background b;
+	static int scWidth = 640;
+	static int scHeight = 480;
+	static boolean fired = false;
     public static void main(String[] args){
         GLProfile gl2Profile;
 
@@ -471,7 +519,8 @@ Does not allow the camera to leave the world
         GLWindow window = GLWindow.create(new GLCapabilities(gl2Profile));
         window.setSize(640, 480);
         window.setTitle("Java Framework");
-        LevelLayout l = new LevelLayout();//set here to avoid window loading before ready
+
+
         window.setVisible(true);
         window.setDefaultCloseOperation(WindowClosingProtocol.WindowClosingMode.DISPOSE_ON_CLOSE);
         window.addKeyListener(new KeyListener() {
@@ -489,8 +538,7 @@ Does not allow the camera to leave the world
         // Setup OpenGL state.
         window.getContext().makeCurrent();
         gl = window.getGL().getGL2();
-        int scWidth = 640;
-        int scHeight = 480;
+
         gl.glViewport(0, 0, scWidth,scHeight);
         gl.glMatrixMode(GL2.GL_PROJECTION);
         gl.glOrtho(0, 640, 480, 0, 0, 100);
@@ -509,7 +557,7 @@ Does not allow the camera to leave the world
         int[] projSpriteSize = new int[2];
         boolean[][] projAlphaMap;
         r = glTexImageTGAFile(gl, "Kirby-Sprites/laser.tga", projSpriteSize);
-        projSpriteSize[0] = 20;
+        projSpriteSize[0] = 30;
 		setProjTex(r.refnum);
 		projAlphaMap =r.alphaGrid;
         // Textures for background?
@@ -518,10 +566,10 @@ Does not allow the camera to leave the world
         long lastFrameNS;
         long currentFrameNS = System.nanoTime();
         long currentPhysicsFrameNS = currentFrameNS;
-        Background b = new Background(gl);
-        Protagonist p = new Protagonist(gl);
+        b = new Background(gl);
+        p = new Protagonist(gl);
         System.out.println(Arrays.toString(enemySpriteSize));
-        BucketHolder buckets = new BucketHolder(2, l.layout[0].length * b.tilex,l.layout.length * b.tiley);
+		buckets = new BucketHolder(2, l.layout[0].length * b.tilex,l.layout.length * b.tiley);
         for(int i = 0; i < 30; i++)
         {
         	Enemy p1 = new Enemy();
@@ -568,6 +616,8 @@ Does not allow the camera to leave the world
         	System.out.println(bucketsOnScreen[0]);
         	System.out.println(bucketsOnScreen[1]);
         	int originalYstart = bucketsOnScreen[1];
+			Arraylist<LaserEnemy> laserEnemiesOnScreen = new Arraylist<LaserEnemy>();
+
         	while(bucketsOnScreen[0] < bucketsOnScreen[2])
         	{
         		while(bucketsOnScreen[1] < bucketsOnScreen[3])
@@ -617,10 +667,10 @@ Does not allow the camera to leave the world
             		}
             	}
             	//System.out.println("}");
-            	
+				projectilesFired = 0;
             	for(int i = 0; i < enemies.size(); i++)
             	{
-            		projectilesFired = 0;
+
             		Sprite current1 = enemies.get(i);
             		
             		if(current1.deleteMe)
@@ -634,6 +684,10 @@ Does not allow the camera to leave the world
             		}
             		if(current1 instanceof Projectile)
             			projectilesFired++;
+					else if(current1 instanceof LaserEnemy)
+					{
+						laserEnemiesOnScreen.add(current1);
+					}
             		current1.updateX();
         			ArrayList<Rectangle> a2 = current1.possibleAABBTiles(b, l);
                 	for(int v = 0; v < a2.size(); v++)
@@ -752,17 +806,27 @@ Does not allow the camera to leave the world
                 p.grounded = false;
             }
 
-            
+
             if(kbState[KeyEvent.VK_SPACE] && !kbPrevState[KeyEvent.VK_SPACE] && projectilesFired < 4)
             {
+
+				//Add line firing projectiles for each firingEnemy
             	Projectile newp = new Projectile();
             	System.out.println(p.curAnimType);
             	System.out.println(p.curAnimType%2);
-            	newp.loc = new double[]{p.loc[0] + ((p.curAnimType % 2) * p.spriteSize[0]) + ((p.curAnimType + 1) % 2) * -projSpriteSize[0],p.loc[1]+p.spriteSize[1]/2};
-            	System.out.println(Arrays.toString(newp.loc));
-            	newp.vel = new double[]{(p.curAnimType % 2) * 3 + ((p.curAnimType + 1) % 2) * -3,0};
+
+					newp.loc = new double[]{p.loc[0] + ((p.curAnimType % 2) * p.spriteSize[0]) + ((p.curAnimType + 1) % 2) * -projSpriteSize[0], p.loc[1] + p.spriteSize[1] / 2};
+					System.out.println(Arrays.toString(newp.loc));
+					newp.vel = new double[]{(p.curAnimType % 2) * 3 + ((p.curAnimType + 1) % 2) * -3, 0};
+					newp.spriteSize = new int[2];
+					newp.spriteSize[0] = projSpriteSize[0];
+					newp.spriteSize[1] = projSpriteSize[1];
+				if(!fired) {
+					newp.spriteSize[0] = newp.spriteSize[0] * 3 / 4;
+				}
+				fired = !fired;
             	newp.spriteRef = getProjTex();
-            	newp.spriteSize = projSpriteSize;
+
             	buckets.add(newp);
             }
             
@@ -958,5 +1022,21 @@ Does not allow the camera to leave the world
 	}
 	public static void setEnemyTex(int enemyTex) {
 		JavaFramework.enemyTex = enemyTex;
+	}
+
+	public static void setLayout(LevelLayout layout) {
+		l = layout;
+	}
+
+	public static void setProtPos(double[] ints) {
+		p.loc = ints;
+	}
+
+	public static void fixCamera() {
+		c = new Camera(l.layout[0].length * b.tilex, l.layout.length * b.tiley, scWidth, scHeight, (int)(p.loc[0] - 0.5 * scWidth), (int)(p.loc[1] - 0.5 * scHeight ));
+	}
+
+	public static void generateEnemies() {
+
 	}
 }
