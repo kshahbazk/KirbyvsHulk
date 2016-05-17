@@ -19,9 +19,10 @@ public class LevelLayout {
 		return str;
 	}
 	public int[][] layout;
+	public Sprite[][] enemylayout;
 	public LevelLayout()
 	{
-		
+		enemylayout = new Sprite[30][200];
 		layout = new int[30][200];
 		boolean largeCloudStarted = false;
 		for(int i = 0; i < layout.length - 2; i++)
@@ -59,6 +60,7 @@ public class LevelLayout {
 			if(count == 2)
 			{
 				count--;
+				//enemylayout[layout.length - 6][j] = new Enemy();
 				layout[layout.length - 6][j] = 0;
 				layout[layout.length - 5][j] = 8;
 				layout[layout.length - 3][j] = 0;
