@@ -64,7 +64,7 @@ class Sprite implements Comparable<Sprite>{
 		return true;
 	}
 	boolean grounded = false;
-	double gravity = 0.4;
+	double gravity = 0.37;
 	double maxvel = 20;//not used yet
 	double maxFallSpeed = 10;
 	public boolean deleteMe;

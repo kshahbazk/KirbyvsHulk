@@ -60,6 +60,7 @@ Does not allow the camera to leave the world
 	static int scWidth = 640;
 	static int scHeight = 480;
 	static boolean fired = false;
+
     public static void main(String[] args){
         GLProfile gl2Profile;
 
@@ -363,7 +364,7 @@ Does not allow the camera to leave the world
                 p.grounded = false;
             }
 			if(kbPrevState[KeyEvent.VK_UP] && !kbState[KeyEvent.VK_UP] && ! (p.grounded || debug)) {
-				p.vel[1] /= 2; //will this work for a shorthop?
+				p.vel[1] /= 2.5; //will this work for a shorthop?
 				//p.grounded = false;
 			}
 
@@ -377,20 +378,19 @@ Does not allow the camera to leave the world
             	//System.out.println(p.curAnimType);
             	//System.out.println(p.curAnimType%2);
 
-					newp.loc = new double[]{p.loc[0] + ((p.curAnimType % 2) * (p.spriteSize[0] + 5)) + ((p.curAnimType + 1) % 2) * -(projSpriteSize[0] + 5), p.loc[1] + 3 * p.spriteSize[1] / 5};
+					newp.loc = new double[]{p.loc[0] + ((p.curAnimType % 2) * (p.spriteSize[0] + 5)) + ((p.curAnimType + 1) % 2) * -(projSpriteSize[0] + 5), p.loc[1] + 4};
 //					System.out.println(Arrays.toString(newp.loc));
 //					System.out.println(newp.curtime);
 //					System.out.println(newp.prevcurtime);
 //					System.out.println(newp.deleteMe);
 
-					newp.vel = new double[]{(p.curAnimType % 2) * 3 + ((p.curAnimType + 1) % 2) * -3, 0};
+					newp.vel = new double[]{(p.curAnimType % 2) * 5 + ((p.curAnimType + 1) % 2) * -5, 0};
 					newp.spriteSize = new int[2];
 					newp.spriteSize[0] = projSpriteSize[0];
 					newp.spriteSize[1] = projSpriteSize[1];
 				if(!fired) {
 					newp.spriteSize[0] = newp.spriteSize[0] * 3 / 4;
 				}
-				fired = !fired;
             	newp.spriteRef = getProjTex();
 				buckets.add(newp);
 				for(int i = 0; i < laserEnemiesOnScreen.size(); i++){
@@ -402,20 +402,21 @@ Does not allow the camera to leave the world
 					if(!fired) {
 						newp.spriteSize[0] = newp.spriteSize[0] * 3 / 4;
 					}
-					fired = !fired;
+
 					if(current.facingRight)
 					{
-						newp.vel = new double[]{3,0};
-						newp.loc = new double[]{current.loc[0] + current.spriteSize[0] + 1, current.loc[1] + current.spriteSize[1] / 2};
+						newp.vel = new double[]{5,0};
+						newp.loc = new double[]{current.loc[0] + current.spriteSize[0] + 7, current.loc[1] + 15};
 					}
 					else
 					{
-						newp.vel = new double[]{-3,0};
-						newp.loc = new double[]{current.loc[0] - current.spriteSize[0] - 1, current.loc[1] + current.spriteSize[1] / 2};
+						newp.vel = new double[]{-5,0};
+						newp.loc = new double[]{current.loc[0] - current.spriteSize[0] - 7, current.loc[1] + 15};
 					}
 					newp.spriteRef = getProjTex();
 					buckets.add(newp);
 				}
+				fired = !fired;
 
             }
             
@@ -634,12 +635,10 @@ Does not allow the camera to leave the world
 
 	public static void moveToTile(int[] ints) {
 
+		double[] oldloc = p.loc;
+
 		p.loc = new double[]{ints[1] * b.tiley + b.tiley - p.spriteSize[1], ints[0] * b.tilex + b.tilex/2 - p.spriteSize[0]/2};
-
-	}
-
-	public static void fixCamera() {
-		c.center(p.loc);
+		//c.moveCamera((int)(oldloc[1] - p.loc[1]), (int)(oldloc[0] - p.loc[0]));
 	}
 
 }

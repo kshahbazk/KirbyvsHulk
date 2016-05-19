@@ -33,6 +33,5 @@ class Portal extends Sprite
 	public void overlapCall()
 	{
 		JavaFramework.moveToTile(new int[]{teleportXTile, teleportYTile});
-		JavaFramework.fixCamera();
 	}
 }
