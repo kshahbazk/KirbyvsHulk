@@ -66,4 +66,10 @@ public class MusicPlayer {
     public boolean isActive(){
         return clip.isActive();
     }
+    public static void main(String[] args)
+    {
+        MusicPlayer m = new MusicPlayer("music/Sure dire dock success.m4a");
+        m.play();
+    }
+
 }

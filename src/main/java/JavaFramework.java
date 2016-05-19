@@ -364,7 +364,7 @@ Does not allow the camera to leave the world
                 p.grounded = false;
             }
 			if(kbPrevState[KeyEvent.VK_UP] && !kbState[KeyEvent.VK_UP] && ! (p.grounded || debug)) {
-				p.vel[1] /= 2.5; //will this work for a shorthop?
+				p.vel[1] /= 2; //will this work for a shorthop?
 				//p.grounded = false;
 			}
 
