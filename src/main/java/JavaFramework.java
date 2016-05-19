@@ -369,6 +369,8 @@ Does not allow the camera to leave the world
 
             if(kbState[KeyEvent.VK_SPACE] && !kbPrevState[KeyEvent.VK_SPACE] && projectilesFired < 4)
             {
+				// Sound for laser
+				MusicPlayer.laserShot.play();
 
 				//Add line firing projectiles for each firingEnemy
             	Projectile newp = new Projectile();
@@ -414,7 +416,6 @@ Does not allow the camera to leave the world
 					newp.spriteRef = getProjTex();
 					buckets.add(newp);
 				}
-
 
             }
             

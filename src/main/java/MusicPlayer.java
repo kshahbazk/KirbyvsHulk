@@ -10,6 +10,7 @@ public class MusicPlayer {
 
     // Based on sample found here http://www.dreamincode.net/forums/topic/343804-how-to-add-background-music-to-my-2d-platformer-game/
     public static MusicPlayer song = new MusicPlayer("/song.wav");
+    public static MusicPlayer laserShot = new MusicPlayer("/Laser.wav");
 
     public MusicPlayer (String fileName) {
         try {
