@@ -55,6 +55,9 @@ public class Camera {
 		return false;
 	}
 	public void center(double[] location){
+		x = (int)(location[0] - .25 * width);
+		y = (int)(location[1] - .5 * height);
+		//moveCamera(0,0);
 	}
 	/**
 	 *

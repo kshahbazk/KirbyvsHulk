@@ -10,6 +10,7 @@ class LaserEnemy extends Enemy
 	{}
 	public LaserEnemy(boolean facingRight)
 	{
+		gravity = 0;
 		this.facingRight = facingRight;
 		if(facingRight)
 			this.spriteRef = JavaFramework.glTexImageTGAFile(JavaFramework.gl, "Kirby-Enemy/Laser-Enemy-Right.tga", spriteSize).refnum;

@@ -10,7 +10,7 @@ class Projectile extends Sprite{
 	public void actForTimePassed(int ns, LinkedList<AITask> aiStack)
 	{
 		curtime += ns;
-		if(curtime - prevcurtime > 10000)
+		if(curtime - prevcurtime > 5000)
 		{
 			deleteMe = true;
 		}

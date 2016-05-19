@@ -34,7 +34,7 @@ public class JavaFramework {
 
     // Position of the sprite.
     //private static int[] loc = new int[] { 700, 700 };
-    private static int projectilesFired = 0;
+    static int projectilesFired = 0;
     // Texture for the sprite.
     private static int enemyTex;
     private static int projTex;
@@ -167,7 +167,7 @@ Does not allow the camera to leave the world
         	//System.out.println(bucketsOnScreen[1]);
         	int originalYstart = bucketsOnScreen[1];
 			ArrayList<LaserEnemy> laserEnemiesOnScreen = new ArrayList<LaserEnemy>();
-
+			ArrayList<LaserCount> laserCounts = new ArrayList<LaserCount>();
         	while(bucketsOnScreen[0] < bucketsOnScreen[2])
         	{
         		while(bucketsOnScreen[1] < bucketsOnScreen[3])
@@ -371,7 +371,7 @@ Does not allow the camera to leave the world
             	//System.out.println(p.curAnimType);
             	//System.out.println(p.curAnimType%2);
 
-					newp.loc = new double[]{p.loc[0] + ((p.curAnimType % 2) * p.spriteSize[0]) + ((p.curAnimType + 1) % 2) * -projSpriteSize[0], p.loc[1] + p.spriteSize[1] / 2};
+					newp.loc = new double[]{p.loc[0] + ((p.curAnimType % 2) * (p.spriteSize[0] + 5)) + ((p.curAnimType + 1) % 2) * -(projSpriteSize[0] + 5), p.loc[1] + 3 * p.spriteSize[1] / 5};
 //					System.out.println(Arrays.toString(newp.loc));
 //					System.out.println(newp.curtime);
 //					System.out.println(newp.prevcurtime);
@@ -400,13 +400,15 @@ Does not allow the camera to leave the world
 					if(current.facingRight)
 					{
 						newp.vel = new double[]{3,0};
-						newp.loc = new double[]{current.loc[0] + current.spriteSize[0], p.loc[1] + p.spriteSize[1] / 2};
+						newp.loc = new double[]{current.loc[0] + current.spriteSize[0] + 1, current.loc[1] + current.spriteSize[1] / 2};
 					}
 					else
 					{
 						newp.vel = new double[]{-3,0};
-						newp.loc = new double[]{current.loc[0] + current.spriteSize[0], p.loc[1] + p.spriteSize[1] / 2};
+						newp.loc = new double[]{current.loc[0] - current.spriteSize[0] - 1, current.loc[1] + current.spriteSize[1] / 2};
 					}
+					newp.spriteRef = getProjTex();
+					buckets.add(newp);
 				}
 
 
@@ -495,7 +497,7 @@ Does not allow the camera to leave the world
 				if(l.enemylayout[i][j] != null)
 				{
 
-					l.enemylayout[i][j].loc = new double[]{j * b.tiley + b.tiley - l.enemylayout[i][j].spriteSize[1],i * b.tilex + b.tilex/2 - l.enemylayout[i][j].spriteSize[0]/2};
+					l.enemylayout[i][j].loc = new double[]{j * b.tiley + b.tiley - l.enemylayout[i][j].spriteSize[0],i * b.tilex + b.tilex/2 - l.enemylayout[i][j].spriteSize[1]/2};
 					System.out.println(l.enemylayout[i][j].loc[0] + " " + l.enemylayout[i][j].loc[1]);
 					buckets.add(l.enemylayout[i][j]);
 				}
@@ -632,10 +634,7 @@ Does not allow the camera to leave the world
 	}
 
 	public static void fixCamera() {
-		c = new Camera(l.layout[0].length * b.tilex, l.layout.length * b.tiley, scWidth, scHeight, (int)(p.loc[0] - 0.5 * scWidth), (int)(p.loc[1] - 0.5 * scHeight ));
+		c.center(p.loc);
 	}
 
-	public static void generateEnemies() {
-
-	}
 }

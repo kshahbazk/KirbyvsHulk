@@ -43,6 +43,10 @@ public class ImageLevelLayout extends LevelLayout {
                     super.enemylayout[y][x] = new LaserEnemy(false);
 
                 }
+                else if(c.getRed() == 235) {
+                    super.enemylayout[y][x] = new LaserCount();
+
+                }
                 else if(c.getRed() == 239) {
                     super.enemylayout[y][x] = new LaserEnemy(true);
 
