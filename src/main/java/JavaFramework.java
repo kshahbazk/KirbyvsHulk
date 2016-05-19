@@ -139,6 +139,10 @@ Does not allow the camera to leave the world
 		System.out.println(c.x + " " + c.y);
 		System.out.println(p.loc[0]+" " +p.loc[1]);
         //System.out.println(l);
+
+		// Play music here
+		MusicPlayer.song.loop();
+
         while (!shouldExit) {
             System.arraycopy(kbState, 0, kbPrevState, 0, kbState.length);
             lastFrameNS = currentFrameNS;
