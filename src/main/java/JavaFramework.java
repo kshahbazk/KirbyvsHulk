@@ -31,7 +31,7 @@ public class JavaFramework {
 
     // The current frame's keyboard state.
     private static boolean kbState[] = new boolean[256];
-
+	private static boolean moveCamera = true;
     // Position of the sprite.
     //private static int[] loc = new int[] { 700, 700 };
     static int projectilesFired = 0;
@@ -191,6 +191,8 @@ Does not allow the camera to leave the world
         	{
         		enemies.get(i).actForTimePassed(deltaTimeNS,aitasks);
         	}
+			ArrayList<Projectile> lasersOnScreen = new ArrayList<Projectile>();
+
 			//System.out.println(p.loc[0]+" " +p.loc[1]);
             do{
             	directions = c.canMove(p.loc[0], p.loc[1], 24, 20);
@@ -225,7 +227,7 @@ Does not allow the camera to leave the world
             	}
             	//System.out.println("}");
 				projectilesFired = 0;
-            	for(int i = 0; i < enemies.size(); i++)
+				for(int i = 0; i < enemies.size(); i++)
             	{
 
             		Sprite current1 = enemies.get(i);
@@ -240,8 +242,10 @@ Does not allow the camera to leave the world
             			current1 = enemies.get(i);
             			
             		}
-            		if(current1 instanceof Projectile)
-            			projectilesFired++;
+            		if(current1 instanceof Projectile) {
+						lasersOnScreen.add((Projectile)current1);
+						projectilesFired++;
+					}
 					else if(current1 instanceof LaserEnemy)
 					{
 						laserEnemiesOnScreen.add((LaserEnemy)current1);
@@ -325,38 +329,53 @@ Does not allow the camera to leave the world
             	}
             	
             	boolean[] camLockedIn = c.pastLockedCoordinates(p.loc[0], p.loc[1], 24, 20);
-        		
-            	c.moveCamera(camLockedIn[0] ? (int)(p.loc[0] - p.prevloc[0]) : 0 ,camLockedIn[1] ? (int)(p.loc[1] - p.prevloc[1]): 0);
-            	//System.out.println("In loop!");
+        		if(moveCamera)
+            		c.moveCamera(camLockedIn[0] ? (int)(p.loc[0] - p.prevloc[0]) : 0 ,camLockedIn[1] ? (int)(p.loc[1] - p.prevloc[1]): 0);
+            	else
+					moveCamera = true;
+				//System.out.println("In loop!");
             	currentPhysicsFrameNS += 10000000;
             }while(currentPhysicsFrameNS < currentFrameNS);
            // System.out.println("Out of loop!");
             
             directions = c.canMove(p.loc[0], p.loc[1], 24, 20);
             if (directions[2] && kbState[KeyEvent.VK_LEFT]) {
-            	
-            	if(p.curAnimType != 0)
-            	{
-            		p.startAnimation(0);
-            	}
-            	
+				if(p.grounded) {
+					if(p.curAnimType != 0)
+					{
+						p.startAnimation(0);
+					}
+				}
+				else
+				{
+					if (p.curAnimType != 4)
+						p.startAnimation(4);
+				}
                 p.vel[0] = -delta[0];
             }
             if (directions[3] && kbState[KeyEvent.VK_RIGHT]) {
                 p.vel[0] = delta[0];
-                if(p.curAnimType != 1)
-            	{
-            		p.startAnimation(1);
-            	}
+				if(p.grounded) {
+					if (p.curAnimType != 1) {
+						p.startAnimation(1);
+					}
+				}
+				else
+				{
+					if (p.curAnimType != 5)
+						p.startAnimation(5);
+				}
                 //loc[0] -= 1;
             }
            
             if(!kbState[KeyEvent.VK_RIGHT] && !kbState[KeyEvent.VK_LEFT])
             {
-            	if(p.curAnimType == 1)
-            		p.startAnimation(3);
-            	if(p.curAnimType == 0)
-            		p.startAnimation(2);
+				if(p.grounded) {
+					if (p.curAnimType == 1 || p.curAnimType == 5)
+						p.startAnimation(3);
+					if (p.curAnimType == 0 || p.curAnimType == 4)
+						p.startAnimation(2);
+				}
             }
             
             if (directions[0] && kbState[KeyEvent.VK_UP] && !kbPrevState[KeyEvent.VK_UP] && (p.grounded || debug)) {
@@ -367,7 +386,13 @@ Does not allow the camera to leave the world
 				p.vel[1] /= 2; //will this work for a shorthop?
 				//p.grounded = false;
 			}
-
+			if(kbState[KeyEvent.VK_K])
+			{
+				for(int i = 0; i < lasersOnScreen.size(); i++)
+				{
+					lasersOnScreen.get(i).deleteMe = true;
+				}
+			}
             if(kbState[KeyEvent.VK_SPACE] && !kbPrevState[KeyEvent.VK_SPACE] && projectilesFired < 4)
             {
 				// Sound for laser
@@ -638,7 +663,10 @@ Does not allow the camera to leave the world
 		double[] oldloc = p.loc;
 
 		p.loc = new double[]{ints[1] * b.tiley + b.tiley - p.spriteSize[1], ints[0] * b.tilex + b.tilex/2 - p.spriteSize[0]/2};
-		//c.moveCamera((int)(oldloc[1] - p.loc[1]), (int)(oldloc[0] - p.loc[0]));
+		p.vel = new double[]{0,0};
+		c.unlockcamera();
+		c.center(p.loc);
+		moveCamera = false;
 	}
 
 }

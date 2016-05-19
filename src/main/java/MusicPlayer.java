@@ -9,9 +9,12 @@ public class MusicPlayer {
     private Clip clip;
 
     // Based on sample found here http://www.dreamincode.net/forums/topic/343804-how-to-add-background-music-to-my-2d-platformer-game/
-    public static MusicPlayer song = new MusicPlayer("/song.wav");
-    public static MusicPlayer laserShot = new MusicPlayer("/Laser.wav");
+    public static MusicPlayer song2= new MusicPlayer("/song.wav");
+    public static MusicPlayer song = new MusicPlayer("/dire_dire_docks.wav");
+    public static MusicPlayer song3 = new MusicPlayer("/game.wav");
 
+    public static MusicPlayer laserShot = new MusicPlayer("/laser2.wav");
+    public static MusicPlayer linking = new MusicPlayer("/dragonwarp.wav");
     public MusicPlayer (String fileName) {
         try {
             AudioInputStream ais = AudioSystem.getAudioInputStream(MusicPlayer.class.getResource(fileName));

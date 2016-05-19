@@ -185,9 +185,10 @@ class Sprite implements Comparable<Sprite>{
 		{
 			//System.out.println("x: " + loc[0] +" y: " + loc[1] + " spriteref: " + spriteRef + " --- other x: " + s2.loc[0] +" y: " + s2.loc[1] + "spriteref: " + s2.spriteRef);
 			loc[1] = prevloc[1];
+			vel[1] = 0;
 			if(!grounded)
 			{
-				vel[1] = 0;
+				JavaFramework.c.moveCamera(0,1);
 				grounded = true;
 			}
 		}

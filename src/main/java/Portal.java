@@ -32,6 +32,7 @@ class Portal extends Sprite
 	}
 	public void overlapCall()
 	{
+		MusicPlayer.linking.play();
 		JavaFramework.moveToTile(new int[]{teleportXTile, teleportYTile});
 	}
 }

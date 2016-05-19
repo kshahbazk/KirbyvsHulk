@@ -35,23 +35,23 @@ public class Camera {
 			left = true;
 			x = 0;
 		}
-		else if(y < 0)
+		if(y < 0)
 		{
 			top = true;
 			y = 0;
 		}
-		else if(x + width > maxWidth)
+		if(x + width > maxWidth)
 		{
 			x = maxWidth - width;
 			right = true;
 		}
-		else if(y + height > maxHeight)
+		if(y + height > maxHeight)
 		{
+			System.out.print("Bottom locked?");
+			System.out.println(deltaX + ", " + deltaY );
 			y = maxHeight - height;
 			bottom = true;
 		}
-		else
-			return true;
 		return false;
 	}
 	public void center(double[] location){
@@ -75,6 +75,12 @@ public class Camera {
 		ret[3] = spriteX + sWidth < x + width;
 		return ret;
 	}
+	public void unlockcamera(){
+		top = false;
+		bottom = false;
+		left = false;
+		right = false;
+	}
 	public boolean isOnScreen(double spriteX, double spriteY, double sWidth, double sHeight)
 	{
 		return spriteY - sHeight > y || spriteY < y + height || spriteX - sWidth> x || sWidth < x + width;
@@ -88,7 +94,7 @@ public class Camera {
 			top = false;
 			
 		}
-		if(bottom && sY + sHeight < y + .5 * height)
+		if(bottom && sY + sHeight < y + .6 * height)
 		{
 			xyLocked[1] = true;
 			bottom = false;

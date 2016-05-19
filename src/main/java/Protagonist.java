@@ -61,7 +61,11 @@ public class Protagonist extends Sprite{
 			ljFrame.refNum = r.refnum;
 			ljFrame.width = temp[0];
 			ljFrame.height = temp[1];
-			ljFrame.endNs = (i + 1) * 100;
+
+			if(i != 4)
+				ljFrame.endNs = (i + 1) * 100;
+			else
+				ljFrame.endNs = 10000;
 			ljFrame.alphaMap = r.alphaGrid;
 			imageArray.get(4).add(ljFrame);
 
@@ -71,7 +75,10 @@ public class Protagonist extends Sprite{
 			rjFrame.refNum = r.refnum;
 			rjFrame.width = temp[0];
 			rjFrame.height = temp[1];
-			rjFrame.endNs = (i + 1) * 100;
+			if(i != 4)
+				rjFrame.endNs = (i + 1) * 100;
+			else
+				rjFrame.endNs = 10000;
 			rjFrame.alphaMap = r.alphaGrid;
 			imageArray.get(5).add(rjFrame);
 		}

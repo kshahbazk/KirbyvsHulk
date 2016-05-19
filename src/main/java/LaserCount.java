@@ -7,7 +7,7 @@ class LaserCount extends Sprite{
 
 	public void actForTimePassed(int ns, LinkedList<AITask> aiStack)
 	{
-		spriteRef = numberarray[JavaFramework.projectilesFired];
+		spriteRef = numberarray[JavaFramework.projectilesFired % numberarray.length];
 
 	}
 	static int[] spriteSizeStatic = new int[]{25,25};
@@ -16,9 +16,6 @@ class LaserCount extends Sprite{
 	{
 		spriteSize = LaserCount.spriteSizeStatic;
 		gravity = 0;
-	}
-	void updateSprite(int currcount){
-		spriteRef = numberarray[currcount];
 	}
 
 }
