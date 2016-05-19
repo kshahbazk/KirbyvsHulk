@@ -73,6 +73,9 @@ public class Protagonist extends Sprite{
 		sright.height = temp[1];
 		sright.endNs = 1000;
 		imageArray.get(3).add(sright);
+
+		// Set animations for jumping here
+
 		startAnimation(3);
 	}
 	public int startAnimation(int animNum){
