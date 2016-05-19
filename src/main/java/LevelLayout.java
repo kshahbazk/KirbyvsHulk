@@ -18,6 +18,7 @@ public class LevelLayout {
 		str += "]";
 		return str;
 	}
+	public int[] startlocation = new int[]{25, 190};
 	public int[][] layout;
 	public Sprite[][] enemylayout;
 	public LevelLayout()

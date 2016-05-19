@@ -30,7 +30,6 @@ public class Protagonist extends Sprite{
 	int curAnimType;
 	int curFrame;
 	public Protagonist(GL2 gl){
-		loc = new double[] { 0, 0 };
 		imageArray = new ArrayList<ArrayList<Frame>>();
 		for(int i = 0; i < 4; i++)
 			imageArray.add(new ArrayList<Frame>());

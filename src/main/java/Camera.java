@@ -54,6 +54,8 @@ public class Camera {
 			return true;
 		return false;
 	}
+	public void center(double[] location){
+	}
 	/**
 	 *
 	 * @param spriteX

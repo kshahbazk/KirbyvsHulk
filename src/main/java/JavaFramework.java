@@ -19,449 +19,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.TreeSet;
-//What depth should we use?
-//3? 4? 5??
-class Ret{
-	//define manually without constructor. need to anyways.
-	int refnum;
-	boolean[][] alphaGrid;
-	
-}
-class BucketHolder
-{
-	TreeSet<Sprite>[][] totalBucketGrid;
-	int totalWidth;
-	int totalHeight;
-	int individualWidth;
-	int individualHeight;
-	//For the sake of sanity, keep depth small. Too big and this will take a VERY long time.
-	public BucketHolder(int depth, int w, int h)
-	{
-		int maxLength = (int) Math.pow(4, depth);
-		System.out.println("Maxlength: "+ maxLength);
-		totalWidth = w;
-		totalHeight = h;
-		individualWidth = totalWidth/maxLength;
-		individualHeight = totalHeight/maxLength;
-		totalBucketGrid = (TreeSet<Sprite>[][])(new TreeSet[maxLength][maxLength]);
-		for(int i = 0; i < maxLength; i++)
-			for(int j = 0; j < maxLength; j++)
-				totalBucketGrid[i][j] = new TreeSet<Sprite>();
-	}
-	//if it were a HUGE sprite, it could theoretically end up in many buckets. most likely outcome is 1-4 buckets if it's sized correctly.
-	//don't need to worry about traversal with this. can just relocate to all buckets with this method on frames when it leaves the bucket.
-	// should just put in the first bucket that fits. set 
-	public void add(Sprite s1){
-		putInBuckets(s1);
-	}
-	public void putInBuckets(Sprite s1){
-		int tempx = (int)(s1.loc[0]/individualWidth);
-		int tempy = (int)(s1.loc[1]/individualHeight);
-		if(tempx < 0)
-			tempx = 0;
-		if (tempy < 0)
-			tempy = 0;
-		if(tempx >= totalBucketGrid.length)
-			tempx = totalBucketGrid.length - 1;
-		if(tempy >= totalBucketGrid.length)
-			tempy = totalBucketGrid[0].length - 1;
-		
-		totalBucketGrid[tempx][tempy].add(s1);
-	}
-	public void removeFromBuckets(Sprite s1){
-		int tempx = (int)(s1.prevloc[0]/individualWidth);
-		int tempy = (int)(s1.prevloc[1]/individualHeight);
-		if(tempx < 0)
-			tempx = 0;
-		if (tempy < 0)
-			tempy = 0;
-		if(tempx >= totalBucketGrid.length)
-			tempx = totalBucketGrid.length - 1;
-		if(tempy >= totalBucketGrid.length)
-			tempy = totalBucketGrid[0].length - 1;
-		
-		totalBucketGrid[tempx][tempy].remove(s1);
-	}
-	//only removes and adds if bucket changes. Can efficiently call on all elements in a bucket.
-	public void moveToRightBucket(Sprite s1){
-		if((int)s1.prevloc[0]/individualWidth != (int)s1.loc[0]/individualWidth || (int)s1.prevloc[1]/individualHeight != (int)s1.loc[1]/individualHeight)
-		{
-			removeFromBuckets(s1);
-			putInBuckets(s1);
-		}
-	}
-	/**
-	 * 
-	 * @param x
-	 * @param y
-	 * @param w
-	 * @param h
-	 * @return an index showing the distance from index at the corner of the camera of the current buckets on screen.
-	 * Let's replace this with an array 
-	 */
-	public int[] bucketsOnScreen(int x, int y, int w, int h)
-	{	
-		
-		int[] ret = new int[4];
-		ret[0] = x/individualWidth;
-		if(ret[0] < 0)
-			ret[0] = 0;
-		ret[1] = y/individualHeight;
-		if(ret[1] < 0)
-			ret[1] = 0;
-		ret[2] = (x + w)/individualWidth + 1;
-		if(ret[2] > this.totalBucketGrid.length - 1)
-			ret[2] = this.totalBucketGrid.length-1;
-		ret[3] = (y + h)/individualHeight + 1;
-		if(ret[3] > this.totalBucketGrid[0].length - 1)
-			ret[3] = this.totalBucketGrid[0].length-1;
-		//System.out.println(Arrays.toString(ret));
-		return ret;
-				
-	}
-}
-class Sprite implements Comparable<Sprite>{
-	public void actForTimePassed(int ns, LinkedList<AITask> l){}
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + (deleteMe ? 1231 : 1237);
-		long temp;
-		temp = Double.doubleToLongBits(gravity);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		result = prime * result + Arrays.hashCode(loc);
-		temp = Double.doubleToLongBits(maxFallSpeed);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(maxvel);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		result = prime * result + Arrays.hashCode(prevloc);
-		result = prime * result + spriteRef;
-		result = prime * result + Arrays.hashCode(spriteSize);
-		result = prime * result + Arrays.hashCode(vel);
-		return result;
-	}
-	public void setRandomDirection()
-	{
-		
-	}
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Sprite other = (Sprite) obj;
-		if (deleteMe != other.deleteMe)
-			return false;
-		if (Double.doubleToLongBits(gravity) != Double
-				.doubleToLongBits(other.gravity))
-			return false;
-		if (!Arrays.equals(loc, other.loc))
-			return false;
-		if (Double.doubleToLongBits(maxFallSpeed) != Double
-				.doubleToLongBits(other.maxFallSpeed))
-			return false;
-		if (Double.doubleToLongBits(maxvel) != Double
-				.doubleToLongBits(other.maxvel))
-			return false;
-		if (!Arrays.equals(prevloc, other.prevloc))
-			return false;
-		if (spriteRef != other.spriteRef)
-			return false;
-		if (!Arrays.equals(spriteSize, other.spriteSize))
-			return false;
-		if (!Arrays.equals(vel, other.vel))
-			return false;
-		return true;
-	}
-	boolean grounded = false;
-	double gravity = 0.4;
-	double maxvel = 20;//not used yet
-	double maxFallSpeed = 10;
-	public boolean deleteMe;
-	public double[] loc = new double[2];
-	public double[] prevloc = new double[2];
-	public int[] spriteSize = new int[2];
-	public int spriteRef;
-	public double[] vel = new double[2];
-	public boolean deleted;
-	public ArrayList<Rectangle> possibleAABBTiles(Background b, LevelLayout l){
-		ArrayList<Rectangle> allAABBs = new ArrayList<Rectangle>();
-		
-		int tempxmax = ((int)loc[0] + spriteSize[0])/b.tilex + 1;
-		if(tempxmax > l.layout[0].length - 1)
-			tempxmax = l.layout[0].length - 1;
-		int tempymax = ((int)loc[1] + spriteSize[1])/b.tiley + 1;
-		if(tempymax > l.layout.length - 1)
-			tempymax = l.layout.length - 1;
-		int tempxmin = (int)loc[0]/b.tilex - 1;
-		if(tempxmin < 0)
-			tempxmin = 0;
-		int tempymin = (int)loc[1]/b.tiley - 1;
-		if(tempymin < 0)
-			tempymin = 0;
-		for(int i = tempxmin; i <= tempxmax; i++)
-		{
-			//if(this instanceof Protagonist)
-				//System.out.println("{");
-			for(int j = tempymin; j <= tempymax; j++)
-			{
-				if(this instanceof Protagonist && JavaFramework.debug)
-				{		
-					JavaFramework.glDrawSprite(JavaFramework.gl, JavaFramework.getProjTex(), i * b.tilex -JavaFramework.c.x, j * b.tiley  -JavaFramework.c.y, b.tilex, b.tiley);
-				}
-				if(b.retrieveSolidity(l.layout[j][i]) != 0)
-				{
-					if(this instanceof Protagonist && JavaFramework.debug)
-						JavaFramework.glDrawSprite(JavaFramework.gl, JavaFramework.getEnemyTex(), i * b.tilex -JavaFramework.c.x, j * b.tiley  -JavaFramework.c.y, b.tilex, b.tiley);
-					allAABBs.add(new Rectangle(i * b.tilex, j * b.tiley, b.tilex,b.tiley));
-				}
-				
-			}
-			
-		}
-		//if(this instanceof Protagonist && allAABBs.size() > 0)
-			//System.out.println(Arrays.toString(allAABBs.toArray()));		
-		return allAABBs;
-				
-	}
-	public int[] AABBoverlap(Rectangle r) {
-		// TODO Auto-generated method stub
-		return AABBoverlap(r.x,r.y,r.width,r.height);
-	}
-	public int[] AABBoverlap(int x, int y, int w, int h)
-	{
-		Sprite s = new Sprite();
-		s.loc[0] = x;
-		s.loc[1] = y;
-		s.spriteSize[0] = w;
-		s.spriteSize[1] = h;
-		return AABBoverlap(s);
-	}
-	public int[] AABBoverlap(Sprite s2)
-	{
-		int[] ret = new int[]{0,0};
-		//right
-		double rightDelta = loc[0] + spriteSize[0] - s2.loc[0];
-		//bottom
-		double lowDelta = loc[1] + spriteSize[1] - s2.loc[1];
-		double leftDelta =  s2.loc[0] + s2.spriteSize[0] - loc[0];
-		//left
-		double highDelta = s2.loc[1] + s2.spriteSize[1] - loc[1];
-		if(rightDelta >= 0 && leftDelta >= 0 && highDelta >= 0 && lowDelta >= 0)
-		{
-			if(rightDelta > leftDelta)
-				ret[0] = (int)leftDelta;
-			else
-				ret[0] = -(int)rightDelta;
-			if(lowDelta > highDelta)
-				ret[1] = (int)highDelta;
-			else
-				ret[1] = -(int)lowDelta;
-		}
-		return ret;
-			
-			
-	}
 
-	/**
-	 * not intended to be universal, just to guarantee prevloc is up to date.
-	 * 
-	 */
-	public void updateX()
-	{
-		prevloc[0] = loc[0];
-		loc[0] += vel[0];
-	}
-	public void updateY()
-	{
-		vel[1] += gravity; 
-		if(vel[1] > maxFallSpeed)
-			vel[1] = maxFallSpeed;
-		prevloc[1] = loc[1];
-		loc[1] += vel[1];
-	}
-	public void onOverlapX(int[] temp, Sprite s2)//Problem with this definition: what do we do when we want multiple types of interaction varying per sprite?
-	{//also: can't remove self!
-		if(temp[0] != 0)// both will be defined when there's overlap
-		{
-			//System.out.println("x: " + loc[0] +" y: " + loc[1] + " spriteref: " + spriteRef + " --- other x: " + s2.loc[0] +" y: " + s2.loc[1] + "spriteref: " + s2.spriteRef);
-			loc[0] = prevloc[0];
-			vel[0] = 0;
-		}
-	}
-	public void onOverlapY(int[] temp, Sprite s2)//Problem with this definition: what do we do when we want multiple types of interaction varying per sprite?
-	{//also: can't remove self!
-		if(temp[0] != 0)// both will be defined when there's overlap
-		{
-			//System.out.println("x: " + loc[0] +" y: " + loc[1] + " spriteref: " + spriteRef + " --- other x: " + s2.loc[0] +" y: " + s2.loc[1] + "spriteref: " + s2.spriteRef);
-			loc[1] = prevloc[1];
-			if(!grounded)
-			{
-				vel[1] = 0;
-				grounded = true;
-			}
-		}
-	}
-	/*Worry about this later.
-	 * public int[] AABBcalc(Sprite s2)
-	{
-		
-	}*/
-	@Override
-	public int compareTo(Sprite obj) {
-	// TODO Auto-generated method stub
-		
-		if (loc[0] - obj.loc[0] != 0)
-		{
-			return 100000* (int) (loc[0] - obj.loc[0]);
-		}
-		if (loc[1] - obj.loc[1] != 0)
-			return 100000 * (int) (loc[1] - obj.loc[1]);
-		if(this.spriteRef != obj.spriteRef)
-			return this.spriteRef - obj.spriteRef;
-		if (vel[0] - obj.vel[0] != 0)
-			return 100000* (int) (vel[0] - obj.vel[0]);
-		if (vel[1] - obj.vel[1] != 0)
-			return 100000* (int) (vel[1] - obj.vel[1]);
-		if(spriteSize[0] - obj.spriteSize[0] != 0)
-			return spriteSize[0] - obj.spriteSize[0];
-		if(spriteSize[1] - obj.spriteSize[1] != 0)
-			return spriteSize[1] - obj.spriteSize[1];
-		
-		return 0;
-		
-	}
-}
-class Projectile extends Sprite{
-	int prevcurtime = 0;
-	int curtime = 0;
-	
-	public void actForTimePassed(int ns, LinkedList<AITask> aiStack)
-	{
-		curtime += ns;
-		if(curtime - prevcurtime > 6000)
-		{
-			deleteMe = true;
-		}
-	}
-	public Projectile()
-	{
-		super();
-		gravity = 0;
-	}
-	public void onOverlapX(int[] overlapArr, Sprite s2)
-	{
-		super.onOverlapX(overlapArr, s2);
-		if(s2 instanceof Enemy && (overlapArr[0] != 0))
-		{
-			deleteMe = true;
-		}
-	}
-	public void onOverlapY(int[] overlapArr, Sprite s2)
-	{
-		super.onOverlapY(overlapArr, s2);
-		if(s2 instanceof Enemy && (overlapArr[0] != 0))
-		{
-			deleteMe = true;
-		}
-	}
-}
-
-class Enemy extends Sprite{
-	int prevcurtime = 0;
-	int curtime = 0;
-	
-	public void actForTimePassed(int ns, LinkedList<AITask> aiStack)
-	{
-		curtime += ns;
-		if(curtime - prevcurtime > 1000)
-		{
-			prevcurtime = curtime;
-			RandomTask r = new RandomTask(this, 7);
-			aiStack.addFirst(r);
-		}
-	}
-	public void onOverlapX(int[] overlapArr, Sprite s2)
-	{
-		super.onOverlapX(overlapArr, s2);
-		if(s2 instanceof Projectile && (overlapArr[0] != 0))
-		{
-			deleteMe = true;
-		}
-	}
-	public void onOverlapY(int[] overlapArr, Sprite s2)
-	{
-		super.onOverlapY(overlapArr, s2);
-		if(s2 instanceof Projectile && (overlapArr[0] != 0))
-		{
-			deleteMe = true;
-		}
-	}
-}
-
-class LaserEnemy extends Enemy
-{
-	boolean facingRight;
-}
-
-class Portal extends Sprite
-{
-	private double teleportXTile;
-	private double teleportYTile;//Easier to think about this way.
-	public Portal(int tileX, int tileY)//tileX will be green value, tileY will be red.
-	{
-		this.teleportXTile = tileX * JavaFramework.b.tilex  + JavaFramework.b.tilex * .5;//magic numbers, but can't give
-		this.teleportYTile = tileY * JavaFramework.b.tilex + JavaFramework.b.tilex;
-
-	}
-
-	public void onOverlapX(int[] overlapArr, Sprite s2)
-	{
-		super.onOverlapX(overlapArr, s2);
-		if(s2 instanceof Protagonist && (overlapArr[0] != 0))//WARP!!!
-		{
-			overlapCall();
-
-		}
-	}
-	public void onOverlapY(int[] overlapArr, Sprite s2)
-	{
-		super.onOverlapY(overlapArr, s2);
-		if(s2 instanceof Projectile && (overlapArr[0] != 0))
-		{
-			overlapCall();
-		}
-	}
-	public void overlapCall()
-	{
-		JavaFramework.setProtPos(new double[]{teleportXTile, teleportYTile});
-		JavaFramework.fixCamera();
-	}
-}
-interface AITask{
-	public void doTask();
-}
-class RandomTask implements AITask{
-	
-	
-	Sprite s1;
-	private int vel;
-	public RandomTask(Sprite s1, int vel)
-	{
-		this.s1 = s1;
-		this.vel = vel;
-	}
-	public void doTask(){
-		
-		double dirangle = Math.random() * 2 * Math.PI;
-		s1.vel[0] = vel * Math.cos(dirangle);
-		s1.vel[1] = vel * Math.sin(dirangle);
-	}
-}
 public class JavaFramework {
 	//disables graphics, draws debug info for collision.
     public static boolean debug = false;
@@ -483,8 +41,9 @@ public class JavaFramework {
     // Size of the sprite.
     private static int[] enemySpriteSize = new int[2];
     private static double[] delta = new double[]{2,8};
-	private static LevelLayout l = new LevelLayout();//set here to avoid window loading before ready
-    static GL2 gl;
+	//private static LevelLayout l = new LevelLayout();
+	private static ImageLevelLayout l;
+	static GL2 gl;
 /*
  * GOALS:
  * Has a scrolling, tiled background that is bigger than the screen.
@@ -566,29 +125,20 @@ Does not allow the camera to leave the world
         long lastFrameNS;
         long currentFrameNS = System.nanoTime();
         long currentPhysicsFrameNS = currentFrameNS;
-        b = new Background(gl);
+		l = new ImageLevelLayout("MainLevelLayout.png");//set here to avoid window loading before ready
+		b = new Background(gl);
         p = new Protagonist(gl);
-        System.out.println(Arrays.toString(enemySpriteSize));
-		buckets = new BucketHolder(2, l.layout[0].length * b.tilex,l.layout.length * b.tiley);
-        for(int i = 0; i < 30; i++)
-        {
-        	Enemy p1 = new Enemy();
-        	p1.loc[0] = (int) (Math.random() * (l.layout[0].length * b.tilex - enemySpriteSize[0]));
-        	p1.loc[1] = (int) (Math.random() * (l.layout.length * b.tiley - enemySpriteSize[1]));
-        	p1.vel[0] = -1 + (int) (Math.random() * 3);
-        	p1.vel[1] = -1 + (int) (Math.random() * 3);
-        	p1.spriteSize = enemySpriteSize;
-        	p1.spriteRef = enemyTex;
-        	System.out.println(p1.loc[0]);
-        	System.out.println(p1.loc[1]);
-        	System.out.println(p1.vel[0]);
-        	System.out.println(p1.vel[1]);
-        	
-        	buckets.add(p1);
-        }
+		System.out.println(p.spriteSize[0] + " " + p.spriteSize[1]);
+		p.loc = new double[]{l.startlocation[1] * b.tiley + b.tiley - p.spriteSize[1], l.startlocation[0] * b.tilex + b.tilex/2 - p.spriteSize[0]/2};
+
+		System.out.println(Arrays.toString(enemySpriteSize));
+		buckets = new BucketHolder(3, l.layout[0].length * b.tilex,l.layout.length * b.tiley);
+        spawnEnemies(l, b);
         c = new Camera(l.layout[0].length * b.tilex, l.layout.length * b.tiley, scWidth, scHeight, (int)(p.loc[0] - 0.5 * scWidth), (int)(p.loc[1] - 0.5 * scHeight ));
-        
-        System.out.println(l);
+        System.out.println(c.maxWidth + " " + c.maxHeight);
+		System.out.println(c.x + " " + c.y);
+		System.out.println(p.loc[0]+" " +p.loc[1]);
+        //System.out.println(l);
         while (!shouldExit) {
             System.arraycopy(kbState, 0, kbPrevState, 0, kbState.length);
             lastFrameNS = currentFrameNS;
@@ -613,8 +163,8 @@ Does not allow the camera to leave the world
             // moving this out of the do while loop so I can handle
             int[] bucketsOnScreen = buckets.bucketsOnScreen(c.x - 50, c.y - 50, c.width + 50, c.height + 50);
         	ArrayList<Sprite> enemies = new ArrayList<Sprite>();
-        	System.out.println(bucketsOnScreen[0]);
-        	System.out.println(bucketsOnScreen[1]);
+        	//System.out.println(bucketsOnScreen[0]);
+        	//System.out.println(bucketsOnScreen[1]);
         	int originalYstart = bucketsOnScreen[1];
 			ArrayList<LaserEnemy> laserEnemiesOnScreen = new ArrayList<LaserEnemy>();
 
@@ -636,6 +186,7 @@ Does not allow the camera to leave the world
         	{
         		enemies.get(i).actForTimePassed(deltaTimeNS,aitasks);
         	}
+			//System.out.println(p.loc[0]+" " +p.loc[1]);
             do{
             	directions = c.canMove(p.loc[0], p.loc[1], 24, 20);
             	
@@ -655,8 +206,9 @@ Does not allow the camera to leave the world
             	//System.out.println("{");
             	for(int q = 0; q < a.size(); q++)
             	{
-            		System.out.println(q);
-            		System.out.println(a.size());
+            		//System.out.println(q);
+            		//
+					// System.out.println(a.size());
             		int[] temp = p.AABBoverlap(a.get(q));
             		//System.out.println(temp[0]);
             		if(temp[0] != 0)
@@ -675,6 +227,7 @@ Does not allow the camera to leave the world
             		
             		if(current1.deleteMe)
             		{
+						//System.out.println("Deleted");
             			buckets.removeFromBuckets(current1);
             			enemies.remove(i);
             			if(i >= enemies.size())
@@ -805,18 +358,25 @@ Does not allow the camera to leave the world
                 p.vel[1] = -delta[1];
                 p.grounded = false;
             }
-
+			if(kbPrevState[KeyEvent.VK_UP] && !kbState[KeyEvent.VK_UP] && ! (p.grounded || debug)) {
+				p.vel[1] /= 2; //will this work for a shorthop?
+				//p.grounded = false;
+			}
 
             if(kbState[KeyEvent.VK_SPACE] && !kbPrevState[KeyEvent.VK_SPACE] && projectilesFired < 4)
             {
 
 				//Add line firing projectiles for each firingEnemy
             	Projectile newp = new Projectile();
-            	System.out.println(p.curAnimType);
-            	System.out.println(p.curAnimType%2);
+            	//System.out.println(p.curAnimType);
+            	//System.out.println(p.curAnimType%2);
 
 					newp.loc = new double[]{p.loc[0] + ((p.curAnimType % 2) * p.spriteSize[0]) + ((p.curAnimType + 1) % 2) * -projSpriteSize[0], p.loc[1] + p.spriteSize[1] / 2};
-					System.out.println(Arrays.toString(newp.loc));
+//					System.out.println(Arrays.toString(newp.loc));
+//					System.out.println(newp.curtime);
+//					System.out.println(newp.prevcurtime);
+//					System.out.println(newp.deleteMe);
+
 					newp.vel = new double[]{(p.curAnimType % 2) * 3 + ((p.curAnimType + 1) % 2) * -3, 0};
 					newp.spriteSize = new int[2];
 					newp.spriteSize[0] = projSpriteSize[0];
@@ -826,8 +386,30 @@ Does not allow the camera to leave the world
 				}
 				fired = !fired;
             	newp.spriteRef = getProjTex();
+				buckets.add(newp);
+				for(int i = 0; i < laserEnemiesOnScreen.size(); i++){
+					newp = new Projectile();
+					LaserEnemy current = laserEnemiesOnScreen.get(i);
+					newp.spriteSize = new int[2];
+					newp.spriteSize[0] = projSpriteSize[0];
+					newp.spriteSize[1] = projSpriteSize[1];
+					if(!fired) {
+						newp.spriteSize[0] = newp.spriteSize[0] * 3 / 4;
+					}
+					fired = !fired;
+					if(current.facingRight)
+					{
+						newp.vel = new double[]{3,0};
+						newp.loc = new double[]{current.loc[0] + current.spriteSize[0], p.loc[1] + p.spriteSize[1] / 2};
+					}
+					else
+					{
+						newp.vel = new double[]{-3,0};
+						newp.loc = new double[]{current.loc[0] + current.spriteSize[0], p.loc[1] + p.spriteSize[1] / 2};
+					}
+				}
 
-            	buckets.add(newp);
+
             }
             
             if (!kbState[KeyEvent.VK_LEFT] && !kbState[KeyEvent.VK_RIGHT]) {
@@ -861,10 +443,10 @@ Does not allow the camera to leave the world
 	        }
             bucketsOnScreen = buckets.bucketsOnScreen(c.x - 50, c.y - 50, c.width + 50, c.height + 50);
             //System.out.println(Arrays.toString(bucketsOnScreen));
-            System.out.println("Drawn x top = " + bucketsOnScreen[0]);
+            /*System.out.println("Drawn x top = " + bucketsOnScreen[0]);
             System.out.println("Drawn y top = " + bucketsOnScreen[1]);
             System.out.println("Drawn x bottom = " + bucketsOnScreen[2]);
-            System.out.println("Drawn y bottom = " + bucketsOnScreen[3]);
+            System.out.println("Drawn y bottom = " + bucketsOnScreen[3]);*/
             
             Sprite current;
             originalYstart = bucketsOnScreen[1];
@@ -905,7 +487,22 @@ Does not allow the camera to leave the world
         }
         System.exit(0);
     }
-    //method to cast to int for double values for drawing.
+
+	private static void spawnEnemies(LevelLayout l, Background b) {
+		for(int i =0; i < l.enemylayout.length; i++)
+			for(int j = 0; j < l.enemylayout[0].length; j++)
+			{
+				if(l.enemylayout[i][j] != null)
+				{
+
+					l.enemylayout[i][j].loc = new double[]{j * b.tiley + b.tiley - l.enemylayout[i][j].spriteSize[1],i * b.tilex + b.tilex/2 - l.enemylayout[i][j].spriteSize[0]/2};
+					System.out.println(l.enemylayout[i][j].loc[0] + " " + l.enemylayout[i][j].loc[1]);
+					buckets.add(l.enemylayout[i][j]);
+				}
+			}
+	}
+
+	//method to cast to int for double values for drawing.
     private static void glDrawSprite(GL2 gl, int spriteRef, double d,
 			double e, int w, int h) {
 		// TODO Auto-generated method stub
@@ -1024,12 +621,14 @@ Does not allow the camera to leave the world
 		JavaFramework.enemyTex = enemyTex;
 	}
 
-	public static void setLayout(LevelLayout layout) {
-		l = layout;
-	}
+	//public static void setLayout(LevelLayout layout) {
+	//	l = layout;
+	//}
 
-	public static void setProtPos(double[] ints) {
-		p.loc = ints;
+	public static void moveToTile(int[] ints) {
+
+		p.loc = new double[]{ints[1] * b.tiley + b.tiley - p.spriteSize[1], ints[0] * b.tilex + b.tilex/2 - p.spriteSize[0]/2};
+
 	}
 
 	public static void fixCamera() {
