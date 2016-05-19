@@ -31,7 +31,7 @@ public class Protagonist extends Sprite{
 	int curFrame;
 	public Protagonist(GL2 gl){
 		imageArray = new ArrayList<ArrayList<Frame>>();
-		for(int i = 0; i < 4; i++)
+		for(int i = 0; i < 6; i++)
 			imageArray.add(new ArrayList<Frame>());
 		
 		int[] temp = new int[2];
@@ -55,6 +55,26 @@ public class Protagonist extends Sprite{
 			rFrame.alphaMap = r.alphaGrid;
 			imageArray.get(1).add(rFrame);
 		}
+		for(int i = 0; i <= 4; i++) {
+			Frame ljFrame = new Frame();
+			Ret r = JavaFramework.glTexImageTGAFile(gl, "Kirby-Sprites/Jumping-Left-0"+(4-i)+ "-00.tga", temp);
+			ljFrame.refNum = r.refnum;
+			ljFrame.width = temp[0];
+			ljFrame.height = temp[1];
+			ljFrame.endNs = (i + 1) * 100;
+			ljFrame.alphaMap = r.alphaGrid;
+			imageArray.get(4).add(ljFrame);
+
+			Frame rjFrame = new Frame();
+
+			r = JavaFramework.glTexImageTGAFile(gl, "Kirby-Sprites/Jumping-Right-0"+ i + "-00.tga", temp);
+			rjFrame.refNum = r.refnum;
+			rjFrame.width = temp[0];
+			rjFrame.height = temp[1];
+			rjFrame.endNs = (i + 1) * 100;
+			rjFrame.alphaMap = r.alphaGrid;
+			imageArray.get(5).add(rjFrame);
+		}
 		Frame sleft = new Frame();
 		Ret r = JavaFramework.glTexImageTGAFile(gl, "Kirby-Sprites/Standing-Left.tga", temp);
 		sleft.alphaMap = r.alphaGrid;
@@ -73,6 +93,9 @@ public class Protagonist extends Sprite{
 		sright.height = temp[1];
 		sright.endNs = 1000;
 		imageArray.get(3).add(sright);
+
+		// Set animations for jumping here
+
 		startAnimation(3);
 	}
 	public int startAnimation(int animNum){
